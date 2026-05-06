@@ -49,7 +49,7 @@ int main() {
         total += i;
     }
     printf("%d\n", total);
-	return 0;
+	  return 0;
 }
 ```
 
@@ -100,52 +100,40 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 class Example03 {
-
-    /**
-     * 产生[min, max)范围的随机整数
-     */
-    public static int randomInt(int min, int max) {
-        return (int) (Math.random() * (max - min) + min);
+    private static final List<Integer> RED_BALLS = new ArrayList<>();
+    static {
+        for (int i = 1; i <= 33; ++i) RED_BALLS.add(i);
     }
     
-    /**
-     * 输出一组双色球号码
-     */
     public static void display(List<Integer> balls) {
-        for (int i = 0; i < balls.size(); ++i) {
-            System.out.printf("%02d ", balls.get(i));
-            if (i == balls.size() - 2) {
-                System.out.print("| ");
-            }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < balls.size(); i++) {
+            sb.append(String.format("%02d ", balls.get(i)));
+            if (i == 5) sb.append("| ");
         }
-        System.out.println();
+        System.out.println(sb.toString());
     }
 
-    /**
-     * 生成一组随机号码
-     */
     public static List<Integer> generate() {
-        List<Integer> redBalls = new ArrayList<>();
-        for (int i = 1; i <= 33; ++i) {
-            redBalls.add(i);
-        }
-        List<Integer> selectedBalls = new ArrayList<>();
-        for (int i = 0; i < 6; ++i) {
-            selectedBalls.add(redBalls.remove(randomInt(0, redBalls.size())));
-        }
+        List<Integer> pool = new ArrayList<>(RED_BALLS);
+        Collections.shuffle(pool);
+        List<Integer> selectedBalls = pool.subList(0, 6);
         Collections.sort(selectedBalls);
-        selectedBalls.add(randomInt(1, 17));
+        selectedBalls.add(ThreadLocalRandom.current().nextInt(1, 17));
         return selectedBalls;
     }
     
     public static void main(String[] args) {
         try (Scanner sc = new Scanner(System.in)) {
             System.out.print("机选几注: ");
-            int num = sc.nextInt();
-            for (int i = 0; i < num; ++i) {
-                display(generate());
+            if (sc.hasNextInt()) {
+                int num = sc.nextInt();
+                for (int i = 0; i < num; ++i) {
+                    display(generate());
+                }
             }
         }
     }
@@ -155,25 +143,23 @@ class Example03 {
 Python的版本：
 
 ```Python
-from random import randint, sample
+import random
+
+RED_RANGE = range(1, 34)
+BLU_RANGE = range(1, 17)
 
 
 def generate():
-    """生成一组随机号码"""
-    red_balls = [x for x in range(1, 34)]
-    selected_balls = sample(red_balls, 6)
-    selected_balls.sort()
-    selected_balls.append(randint(1, 16))
-    return selected_balls
+    red_balls = random.sample(RED_RANGE, 6)
+    red_balls.sort()
+    blue_ball = random.choice(BLU_RANGE)
+    return red_balls, blue_ball
 
 
-def display(balls):
-    """输出一组双色球号码"""
-    for index, ball in enumerate(balls):
-        print(f'{ball:0>2d}', end=' ')
-        if index == len(balls) - 2:
-            print('|', end=' ')
-    print()
+def display(sample):
+    reds, blue = sample
+    reds_str = ' '.join(f'{ball:02d}' for ball in reds)
+    print(f'{reds_str} | {blue:02d}')
 
 
 num = int(input('机选几注: '))
@@ -632,7 +618,7 @@ cProfile.run('list(PrimeIter(10000))')
         1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
 ```
 
-####line_profiler
+#### line_profiler
 
 给需要剖析时间性能的函数加上一个`profile`装饰器，这个函数每行代码的执行次数和时间都会被剖析。
 
@@ -693,7 +679,7 @@ Function: is_prime at line 1
  6      1000        386.0      0.4      0.4      return True
 ```
 
-####memory_profiler 
+#### memory_profiler 
 
 给需要剖析内存性能的函数加上一个`profile`装饰器，这个函数每行代码的内存使用情况都会被剖析。
 
